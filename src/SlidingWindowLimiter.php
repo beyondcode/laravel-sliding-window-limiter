@@ -14,16 +14,21 @@ class SlidingWindowLimiter
     /** @var int */
     private $limit;
 
-    public function __construct(CarbonInterval $timeWindow, int $limit)
+    /** @var int */
+    private $minimumInterval;
+
+    public function __construct(CarbonInterval $timeWindow, int $limit, CarbonInterval $minimumInterval = null)
     {
         $this->timeWindow = $timeWindow->totalSeconds;
 
         $this->limit = $limit;
+
+        $this->minimumInterval = $minimumInterval ?? CarbonInterval::minute();
     }
 
-    public static function create(CarbonInterval $timeWindow, int $limit): self
+    public static function create(CarbonInterval $timeWindow, int $limit, CarbonInterval $minimumInterval = null): self
     {
-        return new static($timeWindow, $limit);
+        return new static($timeWindow, $limit, $minimumInterval);
     }
     
     public function attempt(string $resource): bool
@@ -32,12 +37,12 @@ class SlidingWindowLimiter
 
         $key = $this->buildKey($resource);
 
-        $currentMinute = now()->roundMinute()->timestamp;
+        $currentTimestamp = now()->round($this->minimumInterval)->timestamp;
 
         $allowsAttempt = $this->getUsage($resource) < $this->limit;
 
         if ($allowsAttempt) {
-            $redis->hincrby($key, $currentMinute, 1);
+            $redis->hincrby($key, $currentTimestamp, 1);
 
             $redis->expire($key, $this->timeWindow);
         }
@@ -66,7 +71,7 @@ class SlidingWindowLimiter
     {
         $usage = $this->getConnection()->hgetall($this->buildKey($resource));
 
-        $minimumTimestamp = now()->subSeconds($this->timeWindow)->floorMinute()->timestamp;
+        $minimumTimestamp = now()->subSeconds($this->timeWindow)->floor($this->minimumInterval)->timestamp;
 
         $totalAttempts = 0;
 

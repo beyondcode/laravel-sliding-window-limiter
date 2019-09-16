@@ -76,6 +76,37 @@ class SlidingWindowLimiterTest extends TestCase
     }
 
     /** @test */
+    public function it_limits_the_number_of_attempts_in_a_sliding_window_with_individual_intervals()
+    {
+        Carbon::setTestNow('2019-01-01 00:00:00');
+
+        // Limiter allows 100 attempts within a 1 hour window
+        $limiter = SlidingWindowLimiter::create(CarbonInterval::minute(1), 100, CarbonInterval::second());
+
+        // Make 50 attempts at 00:30:00
+        Carbon::setTestNow('2019-01-01 00:00:30');
+        $this->makeAttempts($limiter, 'resource', 50);
+
+        // Make 50 attempts at 00:45:00
+        Carbon::setTestNow('2019-01-01 00:00:45');
+        $this->makeAttempts($limiter, 'resource', 50);
+
+        // Attempt at 00:46 should fail
+        Carbon::setTestNow('2019-01-01 00:00:46');
+        $this->assertFalse($limiter->attempt('resource'));
+
+        // Usage should be 100, since all attempts have been made
+        $this->assertSame(100, $limiter->getUsage('resource'));
+
+        // Attempt at 01:31 should go through
+        Carbon::setTestNow('2019-01-01 00:01:31');
+        $this->assertTrue($limiter->attempt('resource'));
+
+        // Usage should have "released" the 50 requests from 00:30
+        $this->assertSame(51, $limiter->getUsage('resource'));
+    }
+
+    /** @test */
     public function it_returns_the_usage_count()
     {
         $limiter = SlidingWindowLimiter::create(CarbonInterval::minute(), 100);

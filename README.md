@@ -26,6 +26,14 @@ The second argument is the maximum number of requests/attempts that your limiter
 $limiter = SlidingWindowLimiter::create(CarbonInterval::hour(1), 100);
 ```
 
+### Specifying custom intervals
+
+By default, all attempts to the limiter will be grouped down to the nearest minute. If you need a more fine-grained control over the interval, you can specify it as a third parameter:
+
+``` php
+$limiter = SlidingWindowLimiter::create(CarbonInterval::minute(1), 100, CarbonInterval::second());
+```
+
 ### Running attempts against your limiter
 
 Once your limiter is created, you can perform attempts against it to see if the call is within the usage limits that you specified.
