@@ -1,0 +1,54 @@
+{
+    "name": "beyondcode/laravel-sliding-window-limiter",
+    "description": "Sliding window rate limiting for Laravel and Redis",
+    "keywords": [
+        "beyondcode",
+        "laravel-sliding-window-limiter"
+    ],
+    "homepage": "https://github.com/beyondcode/laravel-sliding-window-limiter",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcel Pociot",
+            "email": "marcel@beyondco.de",
+            "homepage": "https://beyondcode.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.3",
+        "nesbot/carbon": "^2.0",
+        "illuminate/support": "5.8.*|^6.0",
+        "illuminate/redis": "5.8.*|^6.0",
+        "predis/predis": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0",
+        "orchestra/testbench": "^3.8|^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BeyondCode\\SlidingWindowLimiter\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BeyondCode\\SlidingWindowLimiter\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BeyondCode\\SlidingWindowLimiter\\SlidingWindowLimiterServiceProvider"
+            ]
+        }
+    }
+}
