@@ -77,7 +77,7 @@ class SlidingWindowLimiter
 
         foreach ($usage as $timestamp => $attempts) {
             if ($timestamp < $minimumTimestamp) {
-                $this->getConnection()->hdel($resource, [$timestamp]);
+                $this->getConnection()->hdel($resource, $timestamp);
                 continue;
             }
 
